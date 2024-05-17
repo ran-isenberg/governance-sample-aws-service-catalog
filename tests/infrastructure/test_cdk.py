@@ -12,6 +12,6 @@ def test_synthesizes_properly():
     # Prepare the stack for assertions.
     template = Template.from_stack(service_stack)
 
-    # verify that we have one API GW, that is it not deleted by mistake
-    template.resource_count_is('AWS::ApiGateway::RestApi', 1)
     template.resource_count_is('AWS::DynamoDB::GlobalTable', 1)  # main db
+    template.resource_count_is('AWS::ServiceCatalog::CloudFormationProduct', 2)  # two products
+    template.resource_count_is('AWS::ServiceCatalog::Portfolio', 1)  # one portfolio
