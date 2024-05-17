@@ -7,7 +7,7 @@ from cdk.catalog.stack import ServiceStack
 def test_synthesizes_properly():
     app = App()
 
-    service_stack = ServiceStack(app, 'service-test', is_production_env=True)
+    service_stack = ServiceStack(app, 'service-test')
 
     # Prepare the stack for assertions.
     template = Template.from_stack(service_stack)
