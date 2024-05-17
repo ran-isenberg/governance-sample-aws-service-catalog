@@ -1,7 +1,7 @@
 import pytest
 from aws_lambda_powertools.utilities.parser import ValidationError
 
-from service.models.input import CreateOrderRequest
+from catalog_backend.models.input import CreateOrderRequest
 
 
 def test_invalid_name():

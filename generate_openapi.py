@@ -25,7 +25,7 @@ from typing import Any, Dict
 import boto3
 import requests
 
-from cdk.service.utils import get_stack_name
+from cdk.catalog.utils import get_stack_name
 
 
 def get_cdk_stack_outputs(stack_name: str = None) -> Dict[str, str]:
