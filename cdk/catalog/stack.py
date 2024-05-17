@@ -12,8 +12,8 @@ class ServiceStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         self._add_stack_tags()
-        self.api = GovernanceConstruct(self, get_construct_name(stack_prefix=id, construct_name='Governance'))
-        self.portfolio = PortfolioConstruct(self, get_construct_name(stack_prefix=id, construct_name='Portfolio'))
+        self.governance = GovernanceConstruct(self, get_construct_name(stack_prefix=id, construct_name='Governance'))
+        self.portfolio = PortfolioConstruct(self, get_construct_name(stack_prefix=id, construct_name='Portfolio'), self.governance.sns_topic)
 
         # add security check
         self._add_security_tests()

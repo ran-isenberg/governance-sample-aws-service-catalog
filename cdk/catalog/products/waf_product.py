@@ -1,14 +1,31 @@
+from aws_cdk import CfnParameter, aws_sns
 from aws_cdk import aws_servicecatalog as servicecatalog
 from aws_cdk import aws_wafv2 as waf
 from constructs import Construct
 
+from cdk.catalog.products.governance_enabler import create_governance_enabler
+
+WAF_PRODUCT_NAME = 'WAF Rules Product'
+WAF_PRODUCT_VERSION = '1.0.0'
+WAF_PRODUCT_DESCRIPTION = 'Collection of WAF ACL rules for API Gateway'
+
 
 class WafRulesProduct(servicecatalog.ProductStack):
-    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+    def __init__(
+        self,
+        scope: Construct,
+        id: str,
+        product_name: str,
+        product_version: str,
+        topic: aws_sns.Topic,
+        **kwargs,
+    ) -> None:
         super().__init__(scope, id, **kwargs)
 
+        consumer_name_param = CfnParameter(self, 'ConsumerName', type='String', description='Name of the team that deployed the product')
+
         # Create WAF WebACL with AWS Managed Rules
-        waf.CfnWebACL(
+        self.acl = waf.CfnWebACL(
             self,
             'ProductApiGatewayWebAcl',
             scope='REGIONAL',  # Change to CLOUDFRONT if you're using edge-optimized API
@@ -83,3 +100,6 @@ class WafRulesProduct(servicecatalog.ProductStack):
                 ),
             ],
         )
+
+        self.governance_enabler = create_governance_enabler(self, topic, product_name, product_version, consumer_name_param.value_as_string)
+        self.governance_enabler.node.add_dependency(self.acl)
