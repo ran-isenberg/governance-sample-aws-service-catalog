@@ -1,7 +1,7 @@
 from aws_cdk import CustomResource, RemovalPolicy, Stack, aws_sns
 
 
-def create_governance_enabler(scope, topic: aws_sns.Topic, product_name: str, product_version: str, consumer_name: str) -> None:
+def create_governance_enabler(scope, topic: aws_sns.Topic, product_name: str, product_version: str, consumer_name: str) -> CustomResource:
     # custom resource
     stack = Stack.of(scope)
     cr_end_props = {

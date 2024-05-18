@@ -18,7 +18,7 @@ class GovernanceDbConstruct(Construct):
             table_id,
             table_name=table_id,
             partition_key=dynamodb.Attribute(name='portfolio_id', type=dynamodb.AttributeType.STRING),
-            sort_key=dynamodb.Attribute(name='product_id', type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name='product_stack_id', type=dynamodb.AttributeType.STRING),
             billing=dynamodb.Billing.on_demand(),
             point_in_time_recovery=True,
             removal_policy=RemovalPolicy.DESTROY,

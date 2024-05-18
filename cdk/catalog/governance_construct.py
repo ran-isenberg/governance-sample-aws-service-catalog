@@ -105,11 +105,12 @@ class GovernanceConstruct(Construct):
             constants.CREATE_LAMBDA,
             runtime=_lambda.Runtime.PYTHON_3_12,
             code=_lambda.Code.from_asset(constants.BUILD_FOLDER),
-            handler='service.handlers.handle_create_order.lambda_handler',
+            handler='catalog_backend.handlers.product_callback_handler.handle_product_event',
             environment={
                 constants.POWERTOOLS_SERVICE_NAME: constants.SERVICE_NAME,  # for logger, tracer and metrics
                 constants.POWER_TOOLS_LOG_LEVEL: 'INFO',  # for logger
                 'TABLE_NAME': db.table_name,
+                # 'PORTFOLIO_ID': constants.PORTFOLIO_ID, is added later after portfolio creation
             },
             tracing=_lambda.Tracing.ACTIVE,
             retry_attempts=0,
@@ -119,7 +120,7 @@ class GovernanceConstruct(Construct):
             role=role,
             log_retention=RetentionDays.ONE_DAY,
             log_format=_lambda.LogFormat.JSON.value,
-            system_log_level=_lambda.SystemLogLevel.INFO.value,
+            system_log_level=_lambda.SystemLogLevel.WARN.value,
         )
 
         return lambda_function

@@ -1,7 +1,8 @@
 from typing import List
 
+from aws_cdk import CfnOutput, aws_sns
+from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_servicecatalog as servicecatalog
-from aws_cdk import aws_sns
 from constructs import Construct
 
 import cdk.catalog.constants as constants
@@ -10,13 +11,13 @@ from cdk.catalog.products.waf_product import WAF_PRODUCT_DESCRIPTION, WAF_PRODUC
 
 
 class PortfolioConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, governance_topic: aws_sns.Topic, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, governance_topic: aws_sns.Topic, portfolio_lambda: _lambda.Function, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         products = self._create_products(governance_topic)
-        self.portfolio = self._create_portfolio(products)
+        self.portfolio = self._create_portfolio(products, portfolio_lambda)
         self._share_portfolio()
 
-    def _create_portfolio(self, products: List[servicecatalog.CloudFormationProduct]) -> servicecatalog.Portfolio:
+    def _create_portfolio(self, products: List[servicecatalog.CloudFormationProduct], portfolio_lambda: _lambda.Function) -> servicecatalog.Portfolio:
         # Create a Service Catalog portfolio
         portfolio = servicecatalog.Portfolio(
             self,
@@ -24,6 +25,10 @@ class PortfolioConstruct(Construct):
             display_name='Platform engineering Governance Portfolio',
             provider_name='Platform engineering',
         )
+
+        portfolio_lambda.add_environment('PORTFOLIO_ID', portfolio.portfolio_id)
+
+        CfnOutput(self, id=constants.PORTFOLIO_ID_OUTPUT, value=portfolio.portfolio_id).override_logical_id(constants.PORTFOLIO_ID_OUTPUT)
 
         for product in products:
             portfolio.add_product(product)

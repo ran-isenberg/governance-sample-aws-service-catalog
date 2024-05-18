@@ -38,7 +38,3 @@ class CiCdProduct(servicecatalog.ProductStack):
 
         self.governance_enabler = create_governance_enabler(self, topic, product_name, product_version, consumer_name_param.value_as_string)
         self.governance_enabler.node.add_dependency(self.role)
-
-        # product_id = Token.as_string( self.governance_enabler.get_att_string('product_id'))
-        # product_id_output = CfnOutput(scope, id='productId', value=product_id, description='The physical_resource_id generated for the product')
-        # product_id_output.override_logical_id('productId')
