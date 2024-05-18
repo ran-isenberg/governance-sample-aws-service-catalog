@@ -54,7 +54,7 @@ def create_event(event: Dict[str, Any], context: LambdaContext) -> str:
 
 
 @CFN_RESOURCE.update
-def update_event(event: Dict[str, Any], context: LambdaContext) -> str:
+def update_event(event: Dict[str, Any], context: LambdaContext) -> None:
     """
     Parses a product update request and calls the handler.
     Return an id for the new PhysicalResourceId. CloudFormation will send
@@ -69,7 +69,7 @@ def update_event(event: Dict[str, Any], context: LambdaContext) -> str:
     logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties, old_product=parsed_event.old_resource_properties)
     metrics.add_metric(name='UpdateProduct', unit=MetricUnit.Count, value=1)
     logger.info('parsed update product details')
-    return update_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    update_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
 
 
 @CFN_RESOURCE.delete

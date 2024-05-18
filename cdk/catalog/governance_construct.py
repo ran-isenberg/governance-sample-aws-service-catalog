@@ -73,7 +73,7 @@ class GovernanceConstruct(Construct):
                 'dynamodb_db': iam.PolicyDocument(
                     statements=[
                         iam.PolicyStatement(
-                            actions=['dynamodb:PutItem', 'dynamodb:GetItem'],
+                            actions=['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:DeleteItem'],
                             resources=[db.table_arn],
                             effect=iam.Effect.ALLOW,
                         )

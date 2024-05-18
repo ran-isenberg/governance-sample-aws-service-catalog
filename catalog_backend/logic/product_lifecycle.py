@@ -31,7 +31,7 @@ def delete_product(table_name: str, portfolio_id: str, product_details: ProductD
 
 
 @tracer.capture_method(capture_response=False)
-def update_product(table_name: str, portfolio_id: str, product_details: ProductUpdateEventModel) -> str:
+def update_product(table_name: str, portfolio_id: str, product_details: ProductUpdateEventModel) -> None:
     dal_handler: DalHandler = get_dal_handler(table_name)
     dal_handler.update_product_deployment(
         portfolio_id=portfolio_id,
@@ -42,4 +42,3 @@ def update_product(table_name: str, portfolio_id: str, product_details: ProductU
         consumer_name=product_details.resource_properties.consumer_name,
         region=product_details.resource_properties.region,
     )
-    return product_details.request_id
