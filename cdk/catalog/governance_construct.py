@@ -1,4 +1,5 @@
 import aws_cdk.aws_lambda_event_sources as eventsources
+import boto3
 from aws_cdk import Duration, RemovalPolicy, aws_sns, aws_sqs
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_iam as iam
@@ -20,15 +21,34 @@ class GovernanceConstruct(Construct):
         self.lambda_role = self._build_lambda_role(self.api_db.db)
         self.common_layer = self._build_common_layer()
         self.governance_lambda = self._add_governance_lambda(self.lambda_role, self.api_db.db, self.common_layer)
-        self.sns_topic = self._build_sns_sqs_lambda_pattern(self.governance_lambda)
+        self.sns_topic = self._build_sns()
+        self._build_sns_sqs_lambda_pattern(self.sns_topic, self.governance_lambda)
 
-    def _build_sns_sqs_lambda_pattern(self, function: _lambda.Function) -> aws_sns.Topic:
+    def _build_sns(self) -> aws_sns.Topic:
         topic = aws_sns.Topic(
             self,
             f'{self.id_}{constants.SNS_TOPIC}',
             display_name=f'{self.id_}{constants.SNS_TOPIC}',
             topic_name=f'{self.id_}{constants.SNS_TOPIC}',
         )
+        # Define the policy statement to allow all principals in the organization to publish to the topic
+        policy_statement = iam.PolicyStatement(actions=['sns:Publish'], resources=[topic.topic_arn], principals=[iam.AnyPrincipal()])
+
+        # Add a condition to the policy statement to restrict to the organization
+        client = boto3.client('organizations')
+        response = client.describe_organization()
+        policy_statement.add_condition(
+            'StringEquals',
+            {
+                'aws:PrincipalOrgID': response['Organization']['Id'],
+            },
+        )
+
+        # Attach the policy statement to the topic
+        topic.add_to_resource_policy(policy_statement)
+        return topic
+
+    def _build_sns_sqs_lambda_pattern(self, topic: aws_sns.Topic, function: _lambda.Function) -> aws_sns.Topic:
         dlq = aws_sqs.Queue(self, 'dlq', visibility_timeout=Duration.seconds(300), retention_period=Duration.days(1))
         queue = aws_sqs.Queue(
             self,
@@ -41,7 +61,7 @@ class GovernanceConstruct(Construct):
             dead_letter_queue=aws_sqs.DeadLetterQueue(max_receive_count=3, queue=dlq),
         )
         topic.add_subscription(topic_subscription=subscriptions.SqsSubscription(queue, raw_message_delivery=True))
-        function.add_event_source(eventsources.SqsEventSource(queue))
+        function.add_event_source(eventsources.SqsEventSource(queue=queue, batch_size=1, enabled=True))
         return topic
 
     def _build_lambda_role(self, db: dynamodb.TableV2) -> iam.Role:
@@ -53,7 +73,7 @@ class GovernanceConstruct(Construct):
                 'dynamodb_db': iam.PolicyDocument(
                     statements=[
                         iam.PolicyStatement(
-                            actions=['dynamodb:PutItem', 'dynamodb:GetItem'],
+                            actions=['dynamodb:PutItem', 'dynamodb:GetItem', 'dynamodb:DeleteItem'],
                             resources=[db.table_arn],
                             effect=iam.Effect.ALLOW,
                         )
@@ -85,11 +105,12 @@ class GovernanceConstruct(Construct):
             constants.CREATE_LAMBDA,
             runtime=_lambda.Runtime.PYTHON_3_12,
             code=_lambda.Code.from_asset(constants.BUILD_FOLDER),
-            handler='service.handlers.handle_create_order.lambda_handler',
+            handler='catalog_backend.handlers.product_callback_handler.handle_product_event',
             environment={
                 constants.POWERTOOLS_SERVICE_NAME: constants.SERVICE_NAME,  # for logger, tracer and metrics
                 constants.POWER_TOOLS_LOG_LEVEL: 'INFO',  # for logger
                 'TABLE_NAME': db.table_name,
+                # 'PORTFOLIO_ID': constants.PORTFOLIO_ID, is added later after portfolio creation
             },
             tracing=_lambda.Tracing.ACTIVE,
             retry_attempts=0,
@@ -99,7 +120,7 @@ class GovernanceConstruct(Construct):
             role=role,
             log_retention=RetentionDays.ONE_DAY,
             log_format=_lambda.LogFormat.JSON.value,
-            system_log_level=_lambda.SystemLogLevel.INFO.value,
+            system_log_level=_lambda.SystemLogLevel.WARN.value,
         )
 
         return lambda_function

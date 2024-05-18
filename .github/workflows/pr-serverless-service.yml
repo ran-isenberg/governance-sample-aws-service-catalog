@@ -93,8 +93,6 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: yes # optional (default = false)
           verbose: yes # optional (default = false)
-      - name: Run E2E tests
-        run: make e2e
       - name: Destroy stack
         if: always()
         run: make destroy

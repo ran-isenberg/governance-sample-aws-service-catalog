@@ -1,7 +1,5 @@
 from abc import ABC, ABCMeta, abstractmethod
 
-from catalog_backend.models.order import Order
-
 
 class _SingletonMeta(ABCMeta):
     _instances: dict = {}
@@ -15,4 +13,32 @@ class _SingletonMeta(ABCMeta):
 # data access handler / integration later adapter class
 class DalHandler(ABC, metaclass=_SingletonMeta):
     @abstractmethod
-    def create_order_in_db(self, customer_name: str, order_item_count: int) -> Order: ...  # pragma: no cover
+    def add_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+        product_name: str,
+        product_version: str,
+        account_id: str,
+        consumer_name: str,
+        region: str,
+    ) -> None: ...  # pragma: no cover
+
+    @abstractmethod
+    def delete_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+    ) -> None: ...  # pragma: no cover
+
+    @abstractmethod
+    def update_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+        product_name: str,
+        product_version: str,
+        account_id: str,
+        consumer_name: str,
+        region: str,
+    ) -> None: ...  # pragma: no cover

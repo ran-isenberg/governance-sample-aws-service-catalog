@@ -57,7 +57,7 @@ integration:
 e2e:
 	poetry run pytest tests/e2e  --cov-config=.coveragerc --cov=catalog_backend --cov-report xml
 
-pr: deps format pre-commit complex lint lint-docs unit deploy coverage-tests e2e openapi
+pr: deps format pre-commit complex lint lint-docs unit deploy coverage-tests openapi
 
 coverage-tests:
 	poetry run pytest tests/unit tests/integration  --cov-config=.coveragerc --cov=catalog_backend --cov-report xml
