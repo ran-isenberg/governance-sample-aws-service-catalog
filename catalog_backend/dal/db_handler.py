@@ -22,4 +22,11 @@ class DalHandler(ABC, metaclass=_SingletonMeta):
         account_id: str,
         consumer_name: str,
         region: str,
-    ) -> None: ...  # pragma: no cover) -> None: ...  # pragma: no cover
+    ) -> None: ...  # pragma: no cover
+
+    @abstractmethod
+    def delete_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+    ) -> None: ...  # pragma: no cover

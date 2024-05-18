@@ -22,3 +22,9 @@ def provision_product(
         region=product_details.resource_properties.region,
     )
     return product_details.request_id
+
+
+@tracer.capture_method(capture_response=False)
+def delete_product(table_name: str, portfolio_id: str, product_details: ProductCreateEventModel) -> None:
+    dal_handler: DalHandler = get_dal_handler(table_name)
+    dal_handler.delete_product_deployment(portfolio_id, product_details.stack_id)

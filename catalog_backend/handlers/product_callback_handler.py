@@ -10,8 +10,8 @@ from crhelper import CfnResource
 
 from catalog_backend.handlers.models.env_vars import GovernanceEnvVars
 from catalog_backend.handlers.utils.observability import logger, metrics, tracer
-from catalog_backend.logic.product_lifecycle import provision_product
-from catalog_backend.models.input import ProductCreateEventModel
+from catalog_backend.logic.product_lifecycle import delete_product, provision_product
+from catalog_backend.models.input import ProductCreateEventModel, ProductDeleteEventModel
 
 CFN_RESOURCE = CfnResource(json_logging=False, log_level='INFO', boto_level='CRITICAL', sleep_on_delete=0)
 
@@ -40,8 +40,7 @@ def handle_product_event(event: Dict[str, Any], context: LambdaContext) -> None:
 def create_event(event: Dict[str, Any], context: LambdaContext) -> str:
     """
     Parses a product create request and calls the handler.
-    Return an id that will be used for the resource PhysicalResourceId, if None is returned an id will be
-    generated.
+    Return an id that will be used for the resource PhysicalResourceId
     """
     logger.info('custom resource create flow', event=event)
     env_vars = get_environment_variables(model=GovernanceEnvVars)
@@ -75,3 +74,11 @@ def delete_event(event: Dict[str, Any], context: LambdaContext) -> None:
     """
     logger.info('custom resource delete flow', event=event)
     metrics.add_metric(name='DeleteProduct', unit=MetricUnit.Count, value=1)
+    env_vars = get_environment_variables(model=GovernanceEnvVars)
+
+    # parse product input as a delete custom resource  request
+    parsed_event = ProductDeleteEventModel.model_validate(event)
+    logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
+    metrics.add_metric(name='DeleteProduct', unit=MetricUnit.Count, value=1)
+    logger.info('parsed delete product details')
+    return delete_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)

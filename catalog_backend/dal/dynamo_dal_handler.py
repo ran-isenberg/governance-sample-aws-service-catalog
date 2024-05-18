@@ -55,3 +55,18 @@ class DynamoDalHandler(DalHandler):
             raise exc
 
         logger.info('finished create product deployment successfully')
+
+    @tracer.capture_method(capture_response=False)
+    def delete_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+    ) -> None:
+        logger.info('trying to delete product deployment')
+        try:
+            table: Table = self._get_db_handler(self.table_name)
+            table.delete_item(Key={'portfolio_id': portfolio_id, 'product_stack_id': product_stack_id})
+        except Exception as exc:
+            logger.exception('failed to delete product deployment')
+            raise exc
+        logger.info('finished delete product deployment successfully')
