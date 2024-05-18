@@ -61,6 +61,17 @@ jobs:
         run: make deploy
         env:
           ENVIRONMENT: production # Custom environment variable
+      - name: Code coverage tests
+        run: make coverage-tests
+        env:
+          ENVIRONMENT: production # Custom environment variable
+      - name: Codecov
+        uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be # v4.3.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: yes # optional (default = false)
+          verbose: yes # optional (default = false)
 
   publish_github_pages:
     runs-on: ubuntu-latest
