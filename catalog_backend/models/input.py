@@ -9,11 +9,11 @@ from pydantic import BaseModel, Field
 
 
 class ProductModel(BaseModel):
-    product_name: str = Field(..., alias='product_name')
-    product_version: str = Field(..., alias='product_version')
-    account_id: str = Field(..., alias='account_id')
-    consumer_name: str = Field(..., alias='consumer_name')
-    region: str = Field(..., alias='region')
+    product_name: str = Field(..., min_length=1, max_length=40, alias='product_name')
+    product_version: str = Field(..., min_length=1, max_length=10, alias='product_version')
+    account_id: str = Field(..., min_length=1, max_length=40, alias='account_id')
+    consumer_name: str = Field(..., min_length=1, max_length=40, alias='consumer_name')
+    region: str = Field(..., min_length=1, max_length=20, alias='region')
 
 
 class ProductCreateEventModel(CloudFormationCustomResourceCreateModel):
