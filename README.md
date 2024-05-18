@@ -1,5 +1,5 @@
 
-# Governance Sample AWS Service Catalog - Platform Engineering Example
+# Governance Sample AWS Service Catalog - Serverless Platform Engineering Example
 
 [![license](https://img.shields.io/github/license/ran-isenberg/governance-sample-aws-service-catalog)](https://github.com/ran-isenberg/governance-sample-aws-service-catalog/blob/master/LICENSE)
 ![PythonSupport](https://img.shields.io/static/v1?label=python&message=3.12&color=blue?style=flat-square&logo=python)
