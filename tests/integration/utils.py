@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Optional
 from unittest.mock import ANY, MagicMock
 
 from tests.utils import generate_context
@@ -33,7 +33,7 @@ def assert_crhelper_response(success: bool, crhelper_mock: MagicMock):
         assert body['Reason'] == ANY
 
 
-def create_product_body(request_type: str, stack_id: str, resource_properties: dict) -> str:
+def create_product_body(request_type: str, stack_id: str, resource_properties: dict, old_resource_properties: Optional[dict] = None) -> str:
     body = {
         'RequestType': request_type,
         'ServiceToken': 'arn:aws:sns:us-east-1:123456789012:ranisenberg-custom-PlatformCatalog-dev-GovernanceCatalogTopic',
@@ -44,6 +44,8 @@ def create_product_body(request_type: str, stack_id: str, resource_properties: d
         'ResourceType': 'Custom::GovernanceDeploymentStatus',
         'ResourceProperties': resource_properties,
     }
+    if old_resource_properties:
+        body['OldResourceProperties'] = old_resource_properties
     return json.dumps(body)
 
 
@@ -77,4 +79,13 @@ RESOURCE_PROPERTIES = {
     'consumer_name': 'Ran isenberg',
     'region': 'us-east-1',
     'product_name': 'CI/CD IAM Role Product',
+}
+
+NEW_RESOURCE_PROPERTIES = {
+    'ServiceToken': 'arn:aws:sns:us-east-1:123456789012:ranisenberg-custom-PlatformCatalog-dev-GovernanceCatalogTopic',
+    'product_version': '2.0.0',
+    'account_id': '123456789012',
+    'consumer_name': 'Ran isenberg',
+    'region': 'us-east-1',
+    'product_name': 'CI/CD IAM Role Product v2',
 }

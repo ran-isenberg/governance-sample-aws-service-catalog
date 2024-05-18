@@ -70,3 +70,34 @@ class DynamoDalHandler(DalHandler):
             logger.exception('failed to delete product deployment')
             raise exc
         logger.info('finished delete product deployment successfully')
+
+    @tracer.capture_method(capture_response=False)
+    def update_product_deployment(
+        self,
+        portfolio_id: str,
+        product_stack_id: str,
+        product_name: str,
+        product_version: str,
+        account_id: str,
+        consumer_name: str,
+        region: str,
+    ) -> None:
+        logger.info('trying to update product deployment')
+        try:
+            entry = ProductEntry(
+                portfolio_id=portfolio_id,
+                product_stack_id=product_stack_id,
+                name=product_name,
+                version=product_version,
+                account_id=account_id,
+                consumer_name=consumer_name,
+                region=region,
+                created_at=self._get_unix_time(),
+            )
+            table: Table = self._get_db_handler(self.table_name)
+            # overwrite the entry if it exists
+            table.put_item(Item=entry.model_dump())
+        except ValidationError as exc:
+            logger.exception('failed to update product deployment')
+            raise exc
+        logger.info('finished update product deployment successfully')
