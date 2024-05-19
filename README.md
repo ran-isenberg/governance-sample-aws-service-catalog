@@ -12,6 +12,12 @@
 ![issues](https://img.shields.io/github/issues/ran-isenberg/governance-sample-aws-service-catalog)
 ![alt text](https://github.com/ran-isenberg/governance-sample-aws-service-catalog/blob/main/docs/media/banner.png?raw=true)
 
+**[📜Documentation](https://ran-isenberg.github.io/governance-sample-aws-service-catalog/)** | **[Blogs website](https://www.ranthebuilder.cloud)**
+> **Contact details | ran.isenberg@ranthebuilder.cloud**
+
+[![Twitter Follow](https://img.shields.io/twitter/follow/IsenbergRan?label=Follow&style=social)](https://twitter.com/IsenbergRan)
+[![Website](https://img.shields.io/badge/Website-www.ranthebuilder.cloud-blue)](https://www.ranthebuilder.cloud/)
+
 This repository provides a sample implementation to showcase how to enforce governance policies through AWS Service Catalog, helping ensure compliance and efficient management of AWS resources while keeping a high level
 of visibility on deployed service across your organization.
 
@@ -28,13 +34,6 @@ Another important feature is tracking provisioned products - a global DynamoDB t
 Two samples products are included:
 1. WAF rules
 2. IAM role for CI/CD pipelines
-
-
-**[📜Documentation](https://ran-isenberg.github.io/governance-sample-aws-service-catalog/)** | **[Blogs website](https://www.ranthebuilder.cloud)**
-> **Contact details | ran.isenberg@ranthebuilder.cloud**
-
-[![Twitter Follow](https://img.shields.io/twitter/follow/IsenbergRan?label=Follow&style=social)](https://twitter.com/IsenbergRan)
-[![Website](https://img.shields.io/badge/Website-www.ranthebuilder.cloud-blue)](https://www.ranthebuilder.cloud/)
 
 
 ## Prerequisites
@@ -60,10 +59,11 @@ Two samples products are included:
    poetry install
    make dev
    ```
-2. **Deploy service**
+3. **Deploy service catalog portfolio**
   ```sh
    make deploy
    ```
+4. Share the portfolio with an account of your choice and provision a product. Refer to the [documentation](https://docs.aws.amazon.com/servicecatalog/latest/adminguide/introduction.html)
 
 ## Architecture
 The solution architecture includes:
@@ -101,8 +101,8 @@ This section describes the step-by-step deployment flow for the architecture dep
 - **Action**: The custom resource is created.
 - **Outcome**: Custom logic defined in the custom resource is triggered.
 
-### 5. Publish Message with Customer Role and External ID
-**Step 5**: The custom resource publishes a message containing the customer role and external ID to an Amazon SNS topic.
+### 5. Publish Message with Proudct Details
+**Step 5**: The custom resource publishes a message containing the provisioned product metadata to an Amazon SNS topic.
 - **Action**: Publish message to SNS.
 - **Outcome**: The message with necessary details is published to the SNS topic.
 
