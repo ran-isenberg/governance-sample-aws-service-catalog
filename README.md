@@ -101,7 +101,7 @@ This section describes the step-by-step deployment flow for the architecture dep
 - **Action**: The custom resource is created.
 - **Outcome**: Custom logic defined in the custom resource is triggered.
 
-### 5. Publish Message with Proudct Details
+### 5. Publish Message with Product Details
 **Step 5**: The custom resource publishes a message containing the provisioned product metadata to an Amazon SNS topic.
 - **Action**: Publish message to SNS.
 - **Outcome**: The message with necessary details is published to the SNS topic.
