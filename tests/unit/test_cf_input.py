@@ -91,7 +91,7 @@ def test_product_create_event_model_valid():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'PlatformGovernanceCustomResource',
-        'ResourceType': 'Custom::Product',
+        'ResourceType': 'Custom::PlatformEngGovernanceEnabler',
         'ResourceProperties': {
             'product_name': 'TestProduct',
             'product_version': '1.0',
@@ -109,7 +109,7 @@ def test_product_create_event_model_valid():
     assert event.logical_resource_id == 'PlatformGovernanceCustomResource'
 
 
-def test_product_create_event_model_invalid_logical_resource_id():
+def test_product_create_event_model_invalid_resource_type():
     # Given: An invalid logical resource ID
     invalid_event_data = {
         'RequestType': 'Create',
@@ -118,7 +118,7 @@ def test_product_create_event_model_invalid_logical_resource_id():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'InvalidResourceId',
-        'ResourceType': 'Custom::Product',
+        'ResourceType': 'Custom::GovmentStatus',
         'ResourceProperties': {
             'product_name': 'TestProduct',
             'product_version': '1.0',
@@ -143,7 +143,7 @@ def test_product_delete_event_model_valid():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'PlatformGovernanceCustomResource',
-        'ResourceType': 'Custom::Product',
+        'ResourceType': 'Custom::PlatformEngGovernanceEnabler',
         'ResourceProperties': {
             'product_name': 'TestProduct',
             'product_version': '1.0',
@@ -170,7 +170,7 @@ def test_product_update_event_model_valid():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'PlatformGovernanceCustomResource',
-        'ResourceType': 'Custom::Product',
+        'ResourceType': 'Custom::PlatformEngGovernanceEnabler',
         'ResourceProperties': {
             'product_name': 'TestProduct',
             'product_version': '1.0',
@@ -196,7 +196,7 @@ def test_product_update_event_model_valid():
     assert event.logical_resource_id == 'PlatformGovernanceCustomResource'
 
 
-def test_product_update_event_model_invalid_logical_resource_id():
+def test_product_update_event_model_invalid_resource_type():
     # Given: An invalid logical resource ID
     invalid_event_data = {
         'RequestType': 'Update',
@@ -205,7 +205,7 @@ def test_product_update_event_model_invalid_logical_resource_id():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'InvalidResourceId',
-        'ResourceType': 'Custom::Product',
+        'ResourceType': 'PlatformEng::fake',
         'ResourceProperties': {
             'product_name': 'TestProduct',
             'product_version': '1.0',

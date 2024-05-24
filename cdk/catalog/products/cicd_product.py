@@ -1,29 +1,27 @@
-from aws_cdk import CfnParameter, aws_sns
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_servicecatalog as servicecatalog
+from aws_cdk import aws_sns
 from constructs import Construct
 
-from cdk.catalog.products.governance_enabler import create_governance_enabler
-
-CICD_PRODUCT_NAME = 'CI/CD IAM Role Product'
-CICD_PRODUCT_VERSION = '1.0.0'
-CICD_PRODUCT_DESCRIPTION = 'An IAM role for CI/CD pipelines'
+from cdk.catalog.products.governance_construct import GovernanceProductConstruct
 
 
 class CiCdProduct(servicecatalog.ProductStack):
+    CICD_PRODUCT_NAME = 'CI/CD IAM Role Product'
+    CICD_PRODUCT_VERSION = '1.0.0'
+    CICD_PRODUCT_DESCRIPTION = 'An IAM role for CI/CD pipelines'
+
     def __init__(
         self,
         scope: Construct,
         id: str,
-        product_name: str,
-        product_version: str,
         topic: aws_sns.Topic,
         **kwargs,
     ) -> None:
         super().__init__(scope, id, **kwargs)
-
-        # Add a parameter for consumer_name
-        consumer_name_param = CfnParameter(self, 'ConsumerName', type='String', description='Name of the team that deployed the product')
+        self.product_description = CiCdProduct.CICD_PRODUCT_DESCRIPTION
+        self.product_name = CiCdProduct.CICD_PRODUCT_NAME
+        self.product_version = CiCdProduct.CICD_PRODUCT_VERSION
 
         # Create the IAM role within the product stack
         self.role = iam.Role(
@@ -36,5 +34,11 @@ class CiCdProduct(servicecatalog.ProductStack):
             ],
         )
 
-        self.governance_enabler = create_governance_enabler(self, topic, product_name, product_version, consumer_name_param.value_as_string)
+        self.governance_enabler = GovernanceProductConstruct(
+            self,
+            'GovernanceEnabler',
+            topic,
+            self.product_name,
+            self.product_version,
+        )
         self.governance_enabler.node.add_dependency(self.role)

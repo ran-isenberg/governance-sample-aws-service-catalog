@@ -10,17 +10,17 @@ from aws_cdk.aws_logs import RetentionDays
 from constructs import Construct
 
 import cdk.catalog.constants as constants
-from cdk.catalog.governance_db_construct import GovernanceDbConstruct
+from cdk.catalog.visibility_db_construct import VisibilityDbConstruct
 
 
-class GovernanceConstruct(Construct):
+class VisibilityConstruct(Construct):
     def __init__(self, scope: Construct, id_: str) -> None:
         super().__init__(scope, id_)
         self.id_ = id_
-        self.api_db = GovernanceDbConstruct(self, f'{id_}db')
+        self.api_db = VisibilityDbConstruct(self, f'{id_}db')
         self.lambda_role = self._build_lambda_role(self.api_db.db)
         self.common_layer = self._build_common_layer()
-        self.governance_lambda = self._add_governance_lambda(self.lambda_role, self.api_db.db, self.common_layer)
+        self.governance_lambda = self._add_visibility_lambda(self.lambda_role, self.api_db.db, self.common_layer)
         self.sns_topic = self._build_sns()
         self.queue = self._build_sns_sqs_lambda_pattern(self.sns_topic, self.governance_lambda)
 
@@ -94,7 +94,7 @@ class GovernanceConstruct(Construct):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-    def _add_governance_lambda(
+    def _add_visibility_lambda(
         self,
         role: iam.Role,
         db: dynamodb.TableV2,
@@ -109,6 +109,8 @@ class GovernanceConstruct(Construct):
             environment={
                 constants.POWERTOOLS_SERVICE_NAME: constants.SERVICE_NAME,  # for logger, tracer and metrics
                 constants.POWER_TOOLS_LOG_LEVEL: 'INFO',  # for logger
+                'POWERTOOLS_METRICS_NAMESPACE': constants.METRICS_NAMESPACE,  # for metrics
+                'METRICS_DIMENSION_KEY': constants.METRICS_DIMENSION_VALUE,  # for metrics
                 'TABLE_NAME': db.table_name,
                 # 'PORTFOLIO_ID': constants.PORTFOLIO_ID, is added later after portfolio creation
             },

@@ -5,7 +5,7 @@ from constructs import Construct
 import cdk.catalog.constants as constants
 
 
-class GovernanceDbConstruct(Construct):
+class VisibilityDbConstruct(Construct):
     def __init__(self, scope: Construct, id_: str) -> None:
         super().__init__(scope, id_)
 

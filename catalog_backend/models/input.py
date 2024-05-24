@@ -18,15 +18,15 @@ class ProductModel(BaseModel):
 
 class ProductCreateEventModel(CloudFormationCustomResourceCreateModel):
     resource_properties: ProductModel = Field(..., alias='ResourceProperties')
-    logical_resource_id: Literal['PlatformGovernanceCustomResource'] = Field(..., alias='LogicalResourceId')
+    resource_type: Literal['Custom::PlatformEngGovernanceEnabler'] = Field(..., alias='ResourceType')
 
 
 class ProductDeleteEventModel(CloudFormationCustomResourceDeleteModel):
     resource_properties: ProductModel = Field(..., alias='ResourceProperties')
-    logical_resource_id: Literal['PlatformGovernanceCustomResource'] = Field(..., alias='LogicalResourceId')
+    resource_type: Literal['Custom::PlatformEngGovernanceEnabler'] = Field(..., alias='ResourceType')
 
 
 class ProductUpdateEventModel(CloudFormationCustomResourceUpdateModel):
     resource_properties: ProductModel = Field(..., alias='ResourceProperties')
     old_resource_properties: ProductModel = Field(..., alias='OldResourceProperties')
-    logical_resource_id: Literal['PlatformGovernanceCustomResource'] = Field(..., alias='LogicalResourceId')
+    resource_type: Literal['Custom::PlatformEngGovernanceEnabler'] = Field(..., alias='ResourceType')
