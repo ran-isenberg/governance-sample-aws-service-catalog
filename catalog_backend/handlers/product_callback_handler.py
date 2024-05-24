@@ -32,7 +32,6 @@ def handle_product_event(event: Dict[str, Any], context: LambdaContext) -> None:
             CFN_RESOURCE(record_body, context)
     except Exception as ex:
         logger.exception('failed to process product SQS event')
-        metrics.add_metric(name='FailedProducts', unit=MetricUnit.Count, value=1)
         CFN_RESOURCE.init_failure(ex)
 
 
@@ -46,11 +45,16 @@ def create_event(event: Dict[str, Any], context: LambdaContext) -> str:
     env_vars = get_environment_variables(model=VisibilityEnvVars)
 
     # parse product input as a create custom resource  request
-    parsed_event = ProductCreateEventModel.model_validate(event)
-    logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
-    metrics.add_metric(name='CreatedProducts', unit=MetricUnit.Count, value=1)
-    logger.info('parsed create product details')
-    return provision_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    try:
+        parsed_event = ProductCreateEventModel.model_validate(event)
+        logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
+        logger.info('parsed create product details')
+        provision_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+        metrics.add_metric(name='CreatedProducts', unit=MetricUnit.Count, value=1)
+    except Exception:
+        logger.exception('failed to process created product')
+        metrics.add_metric(name='FailedCreatedProducts', unit=MetricUnit.Count, value=1)
+        raise  # CFN_RESOURCE will fail the request
 
 
 @CFN_RESOURCE.update
@@ -64,12 +68,17 @@ def update_event(event: Dict[str, Any], context: LambdaContext) -> None:
     logger.info('custom resource update flow', event=event)
     env_vars = get_environment_variables(model=VisibilityEnvVars)
 
-    # parse product input as a delete custom resource  request
-    parsed_event = ProductUpdateEventModel.model_validate(event)
-    logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties, old_product=parsed_event.old_resource_properties)
-    metrics.add_metric(name='UpdatedProducts', unit=MetricUnit.Count, value=1)
-    logger.info('parsed update product details')
-    update_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    try:
+        # parse product input as a delete custom resource  request
+        parsed_event = ProductUpdateEventModel.model_validate(event)
+        logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties, old_product=parsed_event.old_resource_properties)
+        metrics.add_metric(name='UpdatedProducts', unit=MetricUnit.Count, value=1)
+        logger.info('parsed update product details')
+        update_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    except Exception:
+        logger.exception('failed to process updated product')
+        metrics.add_metric(name='FailedUpdatedProducts', unit=MetricUnit.Count, value=1)
+        raise  # CFN_RESOURCE will fail the request
 
 
 @CFN_RESOURCE.delete
@@ -82,9 +91,14 @@ def delete_event(event: Dict[str, Any], context: LambdaContext) -> None:
     metrics.add_metric(name='DeletedProducts', unit=MetricUnit.Count, value=1)
     env_vars = get_environment_variables(model=VisibilityEnvVars)
 
-    # parse product input as a delete custom resource  request
-    parsed_event = ProductDeleteEventModel.model_validate(event)
-    logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
-    metrics.add_metric(name='DeleteProduct', unit=MetricUnit.Count, value=1)
-    logger.info('parsed delete product details')
-    delete_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    try:
+        # parse product input as a delete custom resource  request
+        parsed_event = ProductDeleteEventModel.model_validate(event)
+        logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
+        metrics.add_metric(name='DeleteProduct', unit=MetricUnit.Count, value=1)
+        logger.info('parsed delete product details')
+        delete_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+    except Exception:
+        logger.exception('failed to process deleted product')
+        metrics.add_metric(name='FailedDeletedProducts', unit=MetricUnit.Count, value=1)
+        raise  # CFN_RESOURCE will fail the request

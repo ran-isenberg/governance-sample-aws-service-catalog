@@ -9,6 +9,7 @@ from cdk_monitoring_constructs import (
     AlarmFactoryDefaults,
     CustomMetricGroup,
     LatencyThreshold,
+    MetricFactory,
     MetricStatistic,
     MonitoringFacade,
     SnsAlarmActionStrategy,
@@ -56,6 +57,19 @@ class ObservabilityConstruct(Construct):
         CfnOutput(self, id=constants.MONITORING_TOPIC, value=topic.topic_name).override_logical_id(constants.MONITORING_TOPIC)
         return topic
 
+    def _build_metric_list(self, metrics_factory: MetricFactory, names: list[str], labels: list[str], title: str) -> CustomMetricGroup:
+        metrics_list = [
+            metrics_factory.create_metric(
+                metric_name=name,
+                namespace=constants.METRICS_NAMESPACE,
+                statistic=MetricStatistic.N,
+                dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
+                label=label,
+            )
+            for name, label in zip(names, labels, strict=False)
+        ]
+        return CustomMetricGroup(metrics=metrics_list, title=title)
+
     def _build_high_level_dashboard(self, notification_topic: sns.Topic):
         high_level_facade = MonitoringFacade(
             self,
@@ -67,41 +81,20 @@ class ObservabilityConstruct(Construct):
             ),
         )
         high_level_facade.add_large_header('Platform Engineering Service Catalog High Level Dashboard')
-        metric_factory = high_level_facade.create_metric_factory()
-        create_metric = metric_factory.create_metric(
-            metric_name='CreatedProducts',
-            namespace=constants.METRICS_NAMESPACE,
-            statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
-            label='created products',
+        metrics_factory = high_level_facade.create_metric_factory()
+        success_group = self._build_metric_list(
+            metrics_factory=metrics_factory,
+            names=['CreatedProducts', 'DeletedProducts', 'UpdatedProducts'],
+            labels=['created products', 'deleted products', 'updated products'],
+            title='Successful Product Requests',
         )
-
-        delete_metric = metric_factory.create_metric(
-            metric_name='DeletedProducts',
-            namespace=constants.METRICS_NAMESPACE,
-            statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
-            label='deleted products',
+        failure_group = self._build_metric_list(
+            metrics_factory=metrics_factory,
+            names=['FailedCreatedProducts', 'FailedDeletedProducts', 'FailedUpdatedProducts'],
+            labels=['failed create products', 'failed delete products', 'failed update products'],
+            title='Failed Product Requests',
         )
-
-        update_metric = metric_factory.create_metric(
-            metric_name='UpdatedProducts',
-            namespace=constants.METRICS_NAMESPACE,
-            statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
-            label='updated products',
-        )
-
-        failure_metric = metric_factory.create_metric(
-            metric_name='FailedProducts',
-            namespace=constants.METRICS_NAMESPACE,
-            statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
-            label='failed product events',
-        )
-
-        group = CustomMetricGroup(metrics=[create_metric, delete_metric, update_metric, failure_metric], title='Daily Product Requests')
-        high_level_facade.monitor_custom(metric_groups=[group], human_readable_name='Daily KPIs', alarm_friendly_name='KPIs')
+        high_level_facade.monitor_custom(metric_groups=[success_group, failure_group], human_readable_name='KPIs', alarm_friendly_name='KPIs')
 
     def _build_low_level_dashboard(
         self, db: dynamodb.TableV2, functions: list[_lambda.Function], notification_topic: sns.Topic, queue: sqs.Queue, visibility_topic: sns.Topic
