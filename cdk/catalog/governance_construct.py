@@ -22,7 +22,7 @@ class GovernanceConstruct(Construct):
         self.common_layer = self._build_common_layer()
         self.governance_lambda = self._add_governance_lambda(self.lambda_role, self.api_db.db, self.common_layer)
         self.sns_topic = self._build_sns()
-        self._build_sns_sqs_lambda_pattern(self.sns_topic, self.governance_lambda)
+        self.queue = self._build_sns_sqs_lambda_pattern(self.sns_topic, self.governance_lambda)
 
     def _build_sns(self) -> aws_sns.Topic:
         topic = aws_sns.Topic(
@@ -48,7 +48,7 @@ class GovernanceConstruct(Construct):
         topic.add_to_resource_policy(policy_statement)
         return topic
 
-    def _build_sns_sqs_lambda_pattern(self, topic: aws_sns.Topic, function: _lambda.Function) -> aws_sns.Topic:
+    def _build_sns_sqs_lambda_pattern(self, topic: aws_sns.Topic, function: _lambda.Function) -> aws_sqs.Queue:
         dlq = aws_sqs.Queue(self, 'dlq', visibility_timeout=Duration.seconds(300), retention_period=Duration.days(1))
         queue = aws_sqs.Queue(
             self,
@@ -62,7 +62,7 @@ class GovernanceConstruct(Construct):
         )
         topic.add_subscription(topic_subscription=subscriptions.SqsSubscription(queue, raw_message_delivery=True))
         function.add_event_source(eventsources.SqsEventSource(queue=queue, batch_size=1, enabled=True))
-        return topic
+        return queue
 
     def _build_lambda_role(self, db: dynamodb.TableV2) -> iam.Role:
         return iam.Role(
@@ -102,7 +102,7 @@ class GovernanceConstruct(Construct):
     ) -> _lambda.Function:
         lambda_function = _lambda.Function(
             self,
-            constants.CREATE_LAMBDA,
+            constants.VISIBILITY_LAMBDA,
             runtime=_lambda.Runtime.PYTHON_3_12,
             code=_lambda.Code.from_asset(constants.BUILD_FOLDER),
             handler='catalog_backend.handlers.product_callback_handler.handle_product_event',
