@@ -4,6 +4,7 @@ from constructs import Construct
 
 from cdk.catalog.constants import OWNER_TAG, SERVICE_NAME, SERVICE_NAME_TAG
 from cdk.catalog.governance_construct import GovernanceConstruct
+from cdk.catalog.observability_construct import ObservabilityConstruct
 from cdk.catalog.portfolio_construct import PortfolioConstruct
 from cdk.catalog.utils import get_construct_name, get_username
 
@@ -15,6 +16,14 @@ class ServiceStack(Stack):
         self.governance = GovernanceConstruct(self, get_construct_name(stack_prefix=id, construct_name='Governance'))
         self.portfolio = PortfolioConstruct(
             self, get_construct_name(stack_prefix=id, construct_name='Portfolio'), self.governance.sns_topic, self.governance.governance_lambda
+        )
+        self.observability = ObservabilityConstruct(
+            self,
+            get_construct_name(stack_prefix=id, construct_name='Observability'),
+            db=self.governance.api_db.db,
+            functions=[self.governance.governance_lambda],
+            visibility_queue=self.governance.queue,
+            visibility_topic=self.governance.sns_topic,
         )
 
         # add security check

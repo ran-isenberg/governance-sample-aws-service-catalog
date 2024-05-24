@@ -72,7 +72,7 @@ The solution architecture includes:
 - Custom resource for creating visibility entries
 - SNS topic and SQS queue
 - AWS Lambda for handling custom resource requests
-- AWS CloudWatch for monitoring and logging.
+- AWS CloudWatch logs, metrics, traces (AWS X-Ray), alarms and dashboards for observability.
 
 ## Step-by-Step Provisioned Product Deployment Flow
 
