@@ -3,17 +3,17 @@ from cdk_nag import AwsSolutionsChecks, NagSuppressions
 from constructs import Construct
 
 from cdk.catalog.constants import OWNER_TAG, SERVICE_NAME, SERVICE_NAME_TAG
-from cdk.catalog.governance_construct import GovernanceConstruct
 from cdk.catalog.observability_construct import ObservabilityConstruct
 from cdk.catalog.portfolio_construct import PortfolioConstruct
 from cdk.catalog.utils import get_construct_name, get_username
+from cdk.catalog.visibility_construct import VisibilityConstruct
 
 
 class ServiceStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         self._add_stack_tags()
-        self.governance = GovernanceConstruct(self, get_construct_name(stack_prefix=id, construct_name='Governance'))
+        self.governance = VisibilityConstruct(self, get_construct_name(stack_prefix=id, construct_name='Governance'))
         self.portfolio = PortfolioConstruct(
             self, get_construct_name(stack_prefix=id, construct_name='Portfolio'), self.governance.sns_topic, self.governance.governance_lambda
         )

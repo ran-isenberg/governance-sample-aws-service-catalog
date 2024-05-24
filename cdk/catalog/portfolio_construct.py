@@ -6,8 +6,8 @@ from aws_cdk import aws_servicecatalog as servicecatalog
 from constructs import Construct
 
 import cdk.catalog.constants as constants
-from cdk.catalog.products.cicd_product import CICD_PRODUCT_DESCRIPTION, CICD_PRODUCT_NAME, CICD_PRODUCT_VERSION, CiCdProduct
-from cdk.catalog.products.waf_product import WAF_PRODUCT_DESCRIPTION, WAF_PRODUCT_NAME, WAF_PRODUCT_VERSION, WafRulesProduct
+from cdk.catalog.products.cicd_product import CiCdProduct
+from cdk.catalog.products.waf_product import WafRulesProduct
 
 
 class PortfolioConstruct(Construct):
@@ -26,7 +26,7 @@ class PortfolioConstruct(Construct):
             provider_name='Platform engineering',
         )
 
-        portfolio_lambda.add_environment('PORTFOLIO_ID', portfolio.portfolio_id)
+        portfolio_lambda.add_environment(constants.PORTFOLIO_ID_ENV_VAR, portfolio.portfolio_id)
 
         CfnOutput(self, id=constants.PORTFOLIO_ID_OUTPUT, value=portfolio.portfolio_id).override_logical_id(constants.PORTFOLIO_ID_OUTPUT)
 
@@ -37,46 +37,38 @@ class PortfolioConstruct(Construct):
 
     def _create_products(self, governance_topic: aws_sns.Topic) -> List[servicecatalog.CloudFormationProduct]:
         # create first product
-        cicd_product = servicecatalog.CloudFormationProduct(
+        cicd_product = CiCdProduct(self, 'CiCdProductStack', governance_topic)
+        cfn_cicd_product = servicecatalog.CloudFormationProduct(
             self,
             'CiCdProduct',
-            product_name=CICD_PRODUCT_NAME,
+            product_name=cicd_product.product_name,
             owner='Platform engineering',
             product_versions=[
                 servicecatalog.CloudFormationProductVersion(
-                    cloud_formation_template=servicecatalog.CloudFormationTemplate.from_product_stack(
-                        CiCdProduct(self, 'CiCdProductStack', CICD_PRODUCT_NAME, CICD_PRODUCT_VERSION, governance_topic)
-                    ),
-                    description=CICD_PRODUCT_DESCRIPTION,
-                    product_version_name=CICD_PRODUCT_VERSION,
+                    cloud_formation_template=servicecatalog.CloudFormationTemplate.from_product_stack(cicd_product),
+                    description=cicd_product.product_description,
+                    product_version_name=cicd_product.product_version,
                 )
             ],
         )
 
         # create second product
-        waf_product = servicecatalog.CloudFormationProduct(
+        waf_product = WafRulesProduct(self, 'WafProductStack', governance_topic)
+        cfn_waf_product = servicecatalog.CloudFormationProduct(
             self,
             'WafProduct',
-            product_name=WAF_PRODUCT_NAME,
+            product_name=waf_product.product_name,
             owner='Platform engineering',
             product_versions=[
                 servicecatalog.CloudFormationProductVersion(
-                    cloud_formation_template=servicecatalog.CloudFormationTemplate.from_product_stack(
-                        WafRulesProduct(
-                            self,
-                            'WafProductStack',
-                            WAF_PRODUCT_NAME,
-                            WAF_PRODUCT_VERSION,
-                            governance_topic,
-                        )
-                    ),
-                    description=WAF_PRODUCT_DESCRIPTION,
-                    product_version_name=WAF_PRODUCT_VERSION,
+                    cloud_formation_template=servicecatalog.CloudFormationTemplate.from_product_stack(waf_product),
+                    description=waf_product.product_description,
+                    product_version_name=waf_product.product_version,
                 )
             ],
         )
 
-        return [cicd_product, waf_product]
+        return [cfn_cicd_product, cfn_waf_product]
 
     def _share_portfolio(self) -> None:
         # share with account numbers, ideally you would share across your organization

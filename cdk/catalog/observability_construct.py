@@ -69,38 +69,38 @@ class ObservabilityConstruct(Construct):
         high_level_facade.add_large_header('Platform Engineering Service Catalog High Level Dashboard')
         metric_factory = high_level_facade.create_metric_factory()
         create_metric = metric_factory.create_metric(
-            metric_name='CreateProduct',
+            metric_name='CreatedProducts',
             namespace=constants.METRICS_NAMESPACE,
             statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.SERVICE_NAME},
-            label='create product events',
+            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
+            label='created products',
             period=Duration.days(1),
         )
 
         delete_metric = metric_factory.create_metric(
-            metric_name='DeleteProduct',
+            metric_name='DeletedProducts',
             namespace=constants.METRICS_NAMESPACE,
             statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.SERVICE_NAME},
-            label='delete product events',
+            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
+            label='deleted products',
             period=Duration.days(1),
         )
 
         update_metric = metric_factory.create_metric(
-            metric_name='UpdateProduct',
+            metric_name='UpdatedProducts',
             namespace=constants.METRICS_NAMESPACE,
             statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.SERVICE_NAME},
-            label='update product events',
+            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
+            label='updated products',
             period=Duration.days(1),
         )
 
         failure_metric = metric_factory.create_metric(
-            metric_name='ProductFailure',
+            metric_name='FailedProducts',
             namespace=constants.METRICS_NAMESPACE,
             statistic=MetricStatistic.N,
-            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.SERVICE_NAME},
-            label='failure product events',
+            dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
+            label='failed product events',
             period=Duration.days(1),
         )
 
