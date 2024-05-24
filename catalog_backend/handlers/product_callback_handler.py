@@ -49,8 +49,9 @@ def create_event(event: Dict[str, Any], context: LambdaContext) -> str:
         parsed_event = ProductCreateEventModel.model_validate(event)
         logger.append_keys(stack_id=parsed_event.stack_id, product=parsed_event.resource_properties)
         logger.info('parsed create product details')
-        provision_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
+        resource_id = provision_product(product_details=parsed_event, table_name=env_vars.TABLE_NAME, portfolio_id=env_vars.PORTFOLIO_ID)
         metrics.add_metric(name='CreatedProducts', unit=MetricUnit.Count, value=1)
+        return resource_id
     except Exception:
         logger.exception('failed to process created product')
         metrics.add_metric(name='FailedCreatedProducts', unit=MetricUnit.Count, value=1)
