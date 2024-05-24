@@ -74,7 +74,6 @@ class ObservabilityConstruct(Construct):
             statistic=MetricStatistic.N,
             dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
             label='created products',
-            period=Duration.days(1),
         )
 
         delete_metric = metric_factory.create_metric(
@@ -83,7 +82,6 @@ class ObservabilityConstruct(Construct):
             statistic=MetricStatistic.N,
             dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
             label='deleted products',
-            period=Duration.days(1),
         )
 
         update_metric = metric_factory.create_metric(
@@ -92,7 +90,6 @@ class ObservabilityConstruct(Construct):
             statistic=MetricStatistic.N,
             dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
             label='updated products',
-            period=Duration.days(1),
         )
 
         failure_metric = metric_factory.create_metric(
@@ -101,7 +98,6 @@ class ObservabilityConstruct(Construct):
             statistic=MetricStatistic.N,
             dimensions_map={constants.METRICS_DIMENSION_KEY: constants.METRICS_DIMENSION_VALUE},
             label='failed product events',
-            period=Duration.days(1),
         )
 
         group = CustomMetricGroup(metrics=[create_metric, delete_metric, update_metric, failure_metric], title='Daily Product Requests')
