@@ -172,6 +172,7 @@ def test_product_update_event_model_valid():
         'StackId': 'arn:aws:cloudformation:region:account-id:stack/stack-name/guid',
         'RequestId': 'unique-request-id',
         'LogicalResourceId': 'PlatformGovernanceCustomResource',
+        'PhysicalResourceId': 'unique-physical-resource-id',
         'ResourceType': 'Custom::PlatformEngGovernanceEnabler',
         'ResourceProperties': {
             'product_name': 'TestProduct',
