@@ -41,6 +41,7 @@ def create_product_body(request_type: str, stack_id: str, resource_properties: d
         'StackId': stack_id,
         'RequestId': 'cc5ad960-e179-4f71-8fdc-3513cdc604a8',
         'LogicalResourceId': 'PlatformGovernanceCustomResource',
+        'PhysicalResourceId': 'unique-physical-resource-id',
         'ResourceType': 'Custom::PlatformEngGovernanceEnabler',
         'ResourceProperties': resource_properties,
     }
