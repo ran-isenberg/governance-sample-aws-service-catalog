@@ -3,6 +3,7 @@ import boto3
 from aws_cdk import Duration, RemovalPolicy, aws_sns, aws_sqs
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_iam as iam
+from aws_cdk import aws_kms as kms
 from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_sns_subscriptions as subscriptions
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
@@ -25,11 +26,21 @@ class VisibilityConstruct(Construct):
         self.queue = self._build_sns_sqs_lambda_pattern(self.sns_topic, self.governance_lambda)
 
     def _build_sns(self) -> aws_sns.Topic:
+        key = kms.Key(
+            self,
+            'VisibilityKey',
+            description='KMS Key for SNS Topic Encryption',
+            enable_key_rotation=True,  # Enables automatic key rotation
+            removal_policy=RemovalPolicy.DESTROY,
+            pending_window=Duration.days(7),
+        )
         topic = aws_sns.Topic(
             self,
             f'{self.id_}{constants.SNS_TOPIC}',
             display_name=f'{self.id_}{constants.SNS_TOPIC}',
             topic_name=f'{self.id_}{constants.SNS_TOPIC}',
+            enforce_ssl=True,
+            master_key=key,
         )
         # Define the policy statement to allow all principals in the organization to publish to the topic
         policy_statement = iam.PolicyStatement(actions=['sns:Publish'], resources=[topic.topic_arn], principals=[iam.AnyPrincipal()])
@@ -49,7 +60,7 @@ class VisibilityConstruct(Construct):
         return topic
 
     def _build_sns_sqs_lambda_pattern(self, topic: aws_sns.Topic, function: _lambda.Function) -> aws_sqs.Queue:
-        dlq = aws_sqs.Queue(self, 'dlq', visibility_timeout=Duration.seconds(300), retention_period=Duration.days(1))
+        dlq = aws_sqs.Queue(self, 'dlq', visibility_timeout=Duration.seconds(300), retention_period=Duration.days(1), enforce_ssl=True)
         queue = aws_sqs.Queue(
             self,
             f'{self.id_}{constants.SQS}',
@@ -59,6 +70,7 @@ class VisibilityConstruct(Construct):
             removal_policy=RemovalPolicy.DESTROY,
             encryption=aws_sqs.QueueEncryption.SQS_MANAGED,
             dead_letter_queue=aws_sqs.DeadLetterQueue(max_receive_count=3, queue=dlq),
+            enforce_ssl=True,
         )
         topic.add_subscription(topic_subscription=subscriptions.SqsSubscription(queue, raw_message_delivery=True))
         function.add_event_source(eventsources.SqsEventSource(queue=queue, batch_size=1, enabled=True))

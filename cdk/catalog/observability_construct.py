@@ -44,7 +44,13 @@ class ObservabilityConstruct(Construct):
             removal_policy=RemovalPolicy.DESTROY,
             pending_window=Duration.days(7),
         )
-        topic = sns.Topic(self, f'{self.id_}alarms', display_name=f'{self.id_}alarms', master_key=key)
+        topic = sns.Topic(
+            self,
+            f'{self.id_}alarms',
+            display_name=f'{self.id_}alarms',
+            master_key=key,
+            enforce_ssl=True,
+        )
         # Grant CloudWatch permissions to publish to the SNS topic
         topic.add_to_resource_policy(
             statement=iam.PolicyStatement(
