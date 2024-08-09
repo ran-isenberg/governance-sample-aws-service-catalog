@@ -40,17 +40,7 @@ class ServiceStack(Stack):
         NagSuppressions.add_stack_suppressions(
             self,
             [
-                {'id': 'AwsSolutions-IAM4', 'reason': 'policy for cloudwatch logs.'},
-                {'id': 'AwsSolutions-IAM5', 'reason': 'policy for cloudwatch logs.'},
-                {'id': 'AwsSolutions-APIG2', 'reason': 'lambda does input validation'},
-                {'id': 'AwsSolutions-APIG1', 'reason': 'not mandatory in a sample template'},
-                {'id': 'AwsSolutions-APIG3', 'reason': 'not mandatory in a sample template'},
-                {'id': 'AwsSolutions-APIG6', 'reason': 'not mandatory in a sample template'},
-                {'id': 'AwsSolutions-APIG4', 'reason': 'authorization not mandatory in a sample template'},
-                {'id': 'AwsSolutions-COG4', 'reason': 'not using cognito'},
-                {'id': 'AwsSolutions-L1', 'reason': 'False positive'},
-                {'id': 'AwsSolutions-SNS2', 'reason': 'ignored for now'},
-                {'id': 'AwsSolutions-SNS3', 'reason': 'False positive'},
-                {'id': 'AwsSolutions-SQS4', 'reason': 'False positive'},
+                {'id': 'AwsSolutions-IAM5', 'reason': 'wild card is creating by CDK for X-ray tracing and CW logs'},
+                {'id': 'AwsSolutions-IAM4', 'reason': 'log retention role created by CDK'},
             ],
         )
