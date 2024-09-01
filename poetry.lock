@@ -303,19 +303,19 @@ ujson = ["ujson (>=5.7.0)"]
 
 [[package]]
 name = "cdk-monitoring-constructs"
-version = "8.1.0"
+version = "8.1.1"
 description = "cdk-monitoring-constructs"
 optional = false
 python-versions = "~=3.8"
 files = [
-    {file = "cdk-monitoring-constructs-8.1.0.tar.gz", hash = "sha256:df4b80a8cbd8631757cbe8341e244c8019fec6f34639f97dde2c1a3a51a44f96"},
-    {file = "cdk_monitoring_constructs-8.1.0-py3-none-any.whl", hash = "sha256:434e56c1e8f072b22f17fe0cc43174f6c6377a047dbe43928943ab764d53bede"},
+    {file = "cdk_monitoring_constructs-8.1.1-py3-none-any.whl", hash = "sha256:f4755e824679137e98dec6e34434145f740c1d0839fcfe356adbb93f58668439"},
+    {file = "cdk_monitoring_constructs-8.1.1.tar.gz", hash = "sha256:4cc8d65ea7504a86e0820297619b3bcede2f725bb6d471142ab1e7009771c0fc"},
 ]
 
 [package.dependencies]
 aws-cdk-lib = ">=2.112.0,<3.0.0"
 constructs = ">=10.0.5,<11.0.0"
-jsii = ">=1.101.0,<2.0.0"
+jsii = ">=1.102.0,<2.0.0"
 publication = ">=0.0.3"
 typeguard = ">=2.13.3,<2.14.0"
 
